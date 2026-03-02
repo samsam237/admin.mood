@@ -1,0 +1,5 @@
+/* Overview.css — styles hérités importés par Dashboard.jsx */
+
+.dashboard {
+  animation: fadeIn 0.25s ease;
+}

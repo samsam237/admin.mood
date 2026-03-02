@@ -1,0 +1,150 @@
+/* KpiCard — design santé & bien-être 2026 */
+
+.kpi-card {
+  background: var(--kpi-bg, var(--color-surface));
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--kpi-accent, var(--color-border));
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.1rem 0.9rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--kpi-accent, transparent) 0%, transparent 100%);
+  opacity: 0.25;
+}
+
+.kpi-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* ── Ligne haute : icône + trend ─────────────────────────────────── */
+.kpi-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.kpi-card-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: var(--kpi-icon-bg, var(--color-bg));
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+}
+
+.kpi-card-icon-placeholder {
+  width: 30px;
+  height: 30px;
+}
+
+/* Trend pill */
+.kpi-card-trend {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.kpi-card-trend--up {
+  background: rgba(4, 120, 87, 0.1);
+  color: var(--color-trend-up);
+}
+
+.kpi-card-trend--down {
+  background: rgba(185, 28, 28, 0.1);
+  color: var(--color-trend-down);
+}
+
+.kpi-card-trend--neutral {
+  background: rgba(100, 116, 139, 0.1);
+  color: var(--color-trend-neutral);
+}
+
+/* ── Valeur principale ───────────────────────────────────────────── */
+.kpi-card-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: var(--color-text);
+  line-height: 1.15;
+  margin-bottom: 0.2rem;
+}
+
+/* ── Labels ──────────────────────────────────────────────────────── */
+.kpi-card-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+}
+
+.kpi-card-sublabel {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  margin-top: 0.1rem;
+}
+
+/* ── Sparkline ───────────────────────────────────────────────────── */
+.kpi-card-sparkline {
+  margin-top: auto;
+  padding-top: 0.6rem;
+  height: 28px;
+  opacity: 0.8;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Variants — chaque couleur métier de MOOD
+   ════════════════════════════════════════════════════════════════ */
+
+/* Croissance (bleu info) */
+.kpi-card--acquisition {
+  --kpi-accent:  var(--color-info);
+  --kpi-bg:      var(--tint-info, rgba(2, 132, 199, 0.04));
+  --kpi-icon-bg: rgba(2, 132, 199, 0.08);
+}
+
+/* Engagement (vert) */
+.kpi-card--engagement {
+  --kpi-accent:  var(--color-primary-dark);
+  --kpi-bg:      var(--tint-move, rgba(5, 150, 105, 0.04));
+  --kpi-icon-bg: rgba(5, 150, 105, 0.1);
+}
+
+/* Santé produit (orange objectifs) */
+.kpi-card--health {
+  --kpi-accent:  var(--color-warning);
+  --kpi-bg:      var(--tint-goal, rgba(217, 119, 6, 0.04));
+  --kpi-icon-bg: rgba(217, 119, 6, 0.1);
+}
+
+/* Rétention (indigo) */
+.kpi-card--retention {
+  --kpi-accent:  var(--color-secondary);
+  --kpi-bg:      rgba(37, 99, 235, 0.04);
+  --kpi-icon-bg: rgba(37, 99, 235, 0.08);
+}
