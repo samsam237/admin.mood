@@ -2,18 +2,23 @@ FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
-# Copie des manifests
-COPY package.json package-lock.json* ./
+# Dépendances serveur (cacheable)
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --no-audit --no-fund
 
-# Installation des deps serveur + client (sans scripts)
-RUN npm install --omit=dev
-
-# Copie du code serveur et client
+# Code serveur
 COPY server ./server
-COPY client ./client
 
-# Build du client React
-RUN cd client && npm install && npm run build
+# Dépendances client (cacheable)
+WORKDIR /usr/src/app/client
+COPY client/package.json client/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+
+# Code + build client
+COPY client ./
+RUN npm run build
+
+WORKDIR /usr/src/app
 
 # Exposition du port API / dashboard
 EXPOSE 3001
