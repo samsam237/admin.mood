@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import cors from 'cors';
+import bcrypt from 'bcryptjs';
 import { getDb, initSchema } from './db.js';
 import authRoutes from './routes/auth.js';
 import apiRoutes from './routes/api.js';
@@ -16,6 +17,18 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 const db = getDb();
 initSchema(db);
+
+// Créer un admin par défaut si aucun n'existe (premier déploiement / volume vide)
+function ensureDefaultAdmin() {
+  const existing = db.prepare('SELECT id FROM admins LIMIT 1').get();
+  if (existing) return;
+  const username = process.env.ADMIN_USERNAME || 'admin';
+  const password = process.env.ADMIN_PASSWORD || 'admin123';
+  const hash = bcrypt.hashSync(password, 10);
+  db.prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)').run(username, hash);
+  console.log('Admin par défaut créé:', username, '(changez le mot de passe en prod)');
+}
+ensureDefaultAdmin();
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
