@@ -5,6 +5,6 @@ data/
 *.db
 *.db-wal
 *.db-shm
-client/dist/
+# client/dist/ — décommenter si vous ne déployez pas via Docker (build préalable)
 .DS_Store
 .copy/
