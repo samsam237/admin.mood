@@ -1,8 +1,9 @@
-FROM node:20-alpine
+# Debian (slim) pour prébuilds better-sqlite3 — évite compilation sur Alpine (timeout/OOM sur Dokploy)
+FROM node:20-slim
 
 WORKDIR /usr/src/app
 
-# Dépendances serveur uniquement
+# Dépendances serveur (prebuilds natifs, pas de compile)
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --no-audit --no-fund
 
