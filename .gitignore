@@ -7,3 +7,4 @@ data/
 *.db-shm
 client/dist/
 .DS_Store
+.copy/

@@ -14,8 +14,9 @@ WORKDIR /usr/src/app/client
 COPY client/package.json client/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 
-# Code + build client
+# Code + build client (limite mémoire pour éviter OOM / cancel sur Dokploy)
 COPY client ./
+ENV NODE_OPTIONS="--max-old-space-size=1536"
 RUN npm run build
 
 WORKDIR /usr/src/app
