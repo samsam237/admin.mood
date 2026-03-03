@@ -1,0 +1,132 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "MOOD Admin API",
+    "version": "1.0.0",
+    "description": "API d'administration MOOD (ingestion d'événements et analytics)."
+  },
+  "servers": [
+    {
+      "url": "https://admin.mood.tappgo.net",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:3001",
+      "description": "Local"
+    }
+  ],
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "summary": "Connexion admin",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string", "example": "admin" },
+                  "password": { "type": "string", "example": "admin123" }
+                },
+                "required": ["username", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentification réussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "username": { "type": "string" },
+                    "token": { "type": "string", "description": "JWT à envoyer dans Authorization: Bearer ..." }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Identifiants incorrects"
+          }
+        }
+      }
+    },
+    "/api/events": {
+      "post": {
+        "summary": "Ingestion d'événements MOOD",
+        "tags": ["Ingestion"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": { "type": "string" },
+                  "type": { "type": "string", "example": "water" },
+                  "payload": { "type": "object" },
+                  "timestamp": { "type": "string", "format": "date-time" }
+                },
+                "required": ["userId", "type"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Événement enregistré"
+          },
+          "400": {
+            "description": "Requête invalide"
+          }
+        }
+      }
+    },
+    "/api/overview": {
+      "get": {
+        "summary": "Vue d'ensemble dashboard",
+        "tags": ["Analytics"],
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistiques d'usage pour le dashboard"
+          },
+          "401": {
+            "description": "Non authentifié"
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health check API",
+        "tags": ["Admin"],
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "API OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
+

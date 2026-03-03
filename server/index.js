@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
+import swaggerUi from 'swagger-ui-express';
 import { getDb, initSchema } from './db.js';
 import authRoutes from './routes/auth.js';
 import apiRoutes from './routes/api.js';
@@ -32,6 +33,14 @@ ensureDefaultAdmin();
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+
+// Swagger / OpenAPI documentation
+const openapiPath = path.join(__dirname, 'openapi.json');
+let openapiDoc = null;
+if (fs.existsSync(openapiPath)) {
+  openapiDoc = JSON.parse(fs.readFileSync(openapiPath, 'utf-8'));
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapiDoc));
+}
 
 app.use('/api/auth', authRoutes);
 app.use('/api', apiRoutes);
