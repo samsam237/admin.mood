@@ -19,6 +19,8 @@ WORKDIR /app/client
 COPY client/package.json ./
 RUN npm install --no-audit --no-fund
 COPY client/ ./
+# ARG CACHEBUST invalide le cache Docker à chaque build si nécessaire
+ARG CACHEBUST=1
 RUN npm run build
 
 # ─── Stage 4 : image finale ───────────────────────────────────────────────────
