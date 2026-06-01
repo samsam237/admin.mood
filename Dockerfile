@@ -20,6 +20,7 @@ RUN npm run build
 # ─── Stage 3 : image finale ───────────────────────────────────────────────────
 FROM node:20-slim AS runner
 
+RUN apt-get update -y && apt-get install -y openssl --no-install-recommends && rm -rf /var/lib/apt/lists/*
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 WORKDIR /app
