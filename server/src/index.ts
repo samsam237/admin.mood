@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import bcrypt from 'bcryptjs';
 import authRouter from './routes/auth';
 import ingestionRouter from './routes/ingestion';
 import analyticsRouter from './routes/analytics';
@@ -11,6 +12,7 @@ import alertsRouter from './routes/alerts';
 import exportRouter from './routes/export';
 import { authMiddleware } from './auth';
 import { startAlertChecker } from './alertChecker';
+import { prisma } from './prisma';
 
 if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
   throw new Error('JWT_SECRET must be at least 32 characters');
@@ -52,8 +54,19 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // ─── Démarrage ────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+async function ensureDefaultAdmin() {
+  const count = await prisma.admin.count();
+  if (count > 0) return;
+  const username = process.env.ADMIN_USERNAME || 'admin';
+  const password = process.env.ADMIN_PASSWORD || 'admin123';
+  const passwordHash = await bcrypt.hash(password, 12);
+  await prisma.admin.create({ data: { username, passwordHash } });
+  console.log(`[server] Admin créé : ${username}`);
+}
+
+app.listen(PORT, async () => {
   console.log(`[server] http://localhost:${PORT}`);
+  await ensureDefaultAdmin();
   if (process.env.NODE_ENV !== 'test') {
     startAlertChecker();
   }
