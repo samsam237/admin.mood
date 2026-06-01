@@ -10,6 +10,7 @@ RUN npm install --omit=dev --no-audit --no-fund
 
 # ─── Stage 2 : build TypeScript ───────────────────────────────────────────────
 FROM node:20-slim AS server-builder
+RUN apt-get update -y && apt-get install -y openssl --no-install-recommends && rm -rf /var/lib/apt/lists/*
 WORKDIR /app/server
 COPY server/package.json ./
 RUN npm install --no-audit --no-fund
