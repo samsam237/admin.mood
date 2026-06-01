@@ -26,6 +26,7 @@ RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 WORKDIR /app
 
 COPY --from=server-deps /app/server/node_modules ./server/node_modules
+COPY --from=server-builder /app/server/node_modules/.prisma ./server/node_modules/.prisma
 COPY --from=server-builder /app/server/dist ./server/dist
 COPY --from=server-builder /app/server/prisma ./server/prisma
 COPY server/package*.json ./server/
@@ -41,4 +42,4 @@ EXPOSE 3050
 
 ENV NODE_ENV=production PORT=3050
 
-CMD ["sh", "-c", "cd server && npx prisma migrate deploy && node dist/index.js"]
+CMD ["sh", "-c", "cd server && npx prisma db push && node dist/index.js"]
