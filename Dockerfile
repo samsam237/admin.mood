@@ -5,14 +5,14 @@
 # ─── Stage 1 : dépendances serveur ────────────────────────────────────────────
 FROM node:20-slim AS server-deps
 WORKDIR /app/server
-COPY server/package*.json ./
-RUN npm ci --omit=dev
+COPY server/package.json ./
+RUN npm install --omit=dev --no-audit --no-fund
 
 # ─── Stage 2 : build TypeScript ───────────────────────────────────────────────
 FROM node:20-slim AS server-builder
 WORKDIR /app/server
-COPY server/package*.json ./
-RUN npm ci
+COPY server/package.json ./
+RUN npm install --no-audit --no-fund
 COPY server/ ./
 RUN npm run build
 
