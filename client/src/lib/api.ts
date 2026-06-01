@@ -41,8 +41,14 @@ export const getUserDetail = (userId: string, days: number) =>
 
 export const getEvents = (params: Record<string, unknown>) =>
   api.get('/events', { params }).then((r) => r.data);
-export const getStats = (params: Record<string, unknown>) =>
+export const getStats = (params?: Record<string, unknown>) =>
   api.get('/stats', { params }).then((r) => r.data);
+
+export const getAdminBackups = (page = 1, limit = 50) =>
+  api.get('/admin/backups', { params: { page, limit } }).then((r) => r.data);
+
+export const createBackup = () =>
+  api.post('/admin/backups').then((r) => r.data);
 
 export const getAlerts = () => api.get<Alert[]>('/alerts').then((r) => r.data);
 export const markAlertRead = (id: number) => api.patch(`/alerts/${id}/read`);

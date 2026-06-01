@@ -181,4 +181,38 @@ router.get('/retention', async (_req: Request, res: Response): Promise<void> => 
   }
 });
 
+router.get('/stats', async (req: Request, res: Response): Promise<void> => {
+  const schema = z.object({
+    page:  z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).max(200).default(50),
+    days:  z.coerce.number().optional(),
+  });
+  const { page, limit, days } = schema.parse(req.query);
+  const skip = (page - 1) * limit;
+  const since = days ? subDays(new Date(), days) : undefined;
+
+  try {
+    const where = since ? { date: { gte: since } } : {};
+    const [data, total] = await Promise.all([
+      prisma.dailyStat.findMany({ where, skip, take: limit, orderBy: { date: 'desc' } }),
+      prisma.dailyStat.count({ where }),
+    ]);
+    res.json({
+      data: data.map((s) => ({
+        userId:       s.userId,
+        date:         s.date instanceof Date ? s.date.toISOString().slice(0, 10) : String(s.date).slice(0, 10),
+        water:        s.water,
+        movements:    s.movements,
+        goalsReached: s.goalsReached,
+      })),
+      total,
+      page,
+      limit,
+    });
+  } catch (err) {
+    console.error('[stats/list]', err);
+    res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
+
 export default router;

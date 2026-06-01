@@ -118,6 +118,9 @@ router.get('/admin/users/:userId', async (req: Request, res: Response): Promise<
     const avgWater = history.length
       ? history.reduce((s, r) => s + r.water, 0) / history.length
       : 0;
+    const avgMovements = history.length
+      ? history.reduce((s, r) => s + r.movements, 0) / history.length
+      : 0;
     const goalsRate = history.length
       ? (history.filter((r) => r.goalsReached).length / history.length) * 100
       : 0;
@@ -126,6 +129,7 @@ router.get('/admin/users/:userId', async (req: Request, res: Response): Promise<
       user: { userId: user.userId, email: user.email, createdAt: user.createdAt },
       stats: {
         avgWater: Math.round(avgWater * 10) / 10,
+        avgMovements: Math.round(avgMovements * 10) / 10,
         goalsRate: Math.round(goalsRate * 10) / 10,
         totalDays: history.length,
       },
@@ -142,6 +146,29 @@ router.get('/admin/users/:userId', async (req: Request, res: Response): Promise<
     console.error('[users/detail]', err);
     res.status(500).json({ error: 'Failed to fetch user detail' });
   }
+});
+
+router.get('/admin/backups', async (req: Request, res: Response): Promise<void> => {
+  const schema = z.object({
+    page:  z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).max(200).default(50),
+  });
+  const { page, limit } = schema.parse(req.query);
+  const skip = (page - 1) * limit;
+  try {
+    const [data, total] = await Promise.all([
+      prisma.userBackupMeta.findMany({ skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.userBackupMeta.count(),
+    ]);
+    res.json({ data, total, page, limit });
+  } catch (err) {
+    console.error('[admin/backups]', err);
+    res.status(500).json({ error: 'Failed to fetch backups' });
+  }
+});
+
+router.post('/admin/backups', async (_req: Request, res: Response): Promise<void> => {
+  res.json({ ok: true, message: 'Backup triggered (no-op)' });
 });
 
 export default router;
