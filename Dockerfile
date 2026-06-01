@@ -1,24 +1,42 @@
-# Debian (slim) pour prébuilds better-sqlite3 — évite compilation sur Alpine (timeout/OOM sur Dokploy)
-FROM node:20-slim
+# Client doit être pré-buildé localement avant docker build :
+#   cd client && npm run build
+#   docker build -t mood-admin .
 
-WORKDIR /usr/src/app
+# ─── Stage 1 : dépendances serveur ────────────────────────────────────────────
+FROM node:20-slim AS server-deps
+WORKDIR /app/server
+COPY server/package*.json ./
+RUN npm ci --omit=dev
 
-# Dépendances serveur (prebuilds natifs, pas de compile)
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --no-audit --no-fund
+# ─── Stage 2 : build TypeScript ───────────────────────────────────────────────
+FROM node:20-slim AS server-builder
+WORKDIR /app/server
+COPY server/package*.json ./
+RUN npm ci
+COPY server/ ./
+RUN npm run build
 
-# Code serveur
-COPY server ./server
+# ─── Stage 3 : image finale ───────────────────────────────────────────────────
+FROM node:20-slim AS runner
 
-# Client pré-construit (build en local ou en CI : cd client && npm run build, puis commit client/dist)
-# Évite timeout/OOM du build Vite sur Dokploy
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
+
+WORKDIR /app
+
+COPY --from=server-deps /app/server/node_modules ./server/node_modules
+COPY --from=server-builder /app/server/dist ./server/dist
+COPY --from=server-builder /app/server/prisma ./server/prisma
+COPY server/package*.json ./server/
+
+# Client pré-buildé localement
 COPY client/dist ./client/dist
 
-# Exposition du port API / dashboard
-EXPOSE 3001
+RUN mkdir -p /app/data && chown -R appuser:appgroup /app
 
-ENV NODE_ENV=production
-ENV PORT=3001
+USER appuser
 
-CMD ["npm", "start"]
+EXPOSE 3050
 
+ENV NODE_ENV=production PORT=3050
+
+CMD ["sh", "-c", "cd server && npx prisma migrate deploy && node dist/index.js"]

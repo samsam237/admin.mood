@@ -1,6 +1,13 @@
 # Deploy : rebuild client/dist, commit, push → Dokploy redéploie automatiquement
 Set-Location $PSScriptRoot
 
+Write-Host "==> Verification package-lock.json..." -ForegroundColor Cyan
+npm install --package-lock-only --no-audit --no-fund 2>$null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "ERREUR : npm install a echoue." -ForegroundColor Red
+    exit 1
+}
+
 Write-Host "==> Build du client..." -ForegroundColor Cyan
 npm run build
 if ($LASTEXITCODE -ne 0) {
@@ -8,8 +15,8 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Write-Host "==> Ajout de client/dist au commit..." -ForegroundColor Cyan
-git add client/dist
+Write-Host "==> Ajout de client/dist et package-lock.json au commit..." -ForegroundColor Cyan
+git add client/dist package-lock.json
 
 $changes = git status --porcelain
 if (-not $changes) {

@@ -1,25 +1,17 @@
 {
-  "name": "mood-dashboard",
+  "name": "mood-admin",
   "version": "1.0.0",
-  "description": "Dashboard admin MOOD - collecte et affichage des données",
-  "type": "module",
+  "private": true,
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:server": "node server/index.js",
+    "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
     "build": "cd client && npm run build",
-    "start": "node server/index.js",
-    "init-db": "node server/init-db.js",
-    "backup": "node server/run-backup.js"
-  },
-  "dependencies": {
-    "better-sqlite3": "^11.6.0",
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.1",
-    "swagger-ui-express": "^5.0.1",
-    "jsonwebtoken": "^9.0.2"
+    "start": "cd server && npm start",
+    "db:migrate": "cd server && npx prisma migrate dev",
+    "db:deploy": "cd server && npx prisma migrate deploy",
+    "db:seed": "cd server && npx prisma db seed",
+    "db:studio": "cd server && npx prisma studio"
   },
   "devDependencies": {
     "concurrently": "^9.1.0"

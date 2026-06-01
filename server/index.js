@@ -42,6 +42,10 @@ if (fs.existsSync(openapiPath)) {
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapiDoc));
 }
 
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', uptime: Math.floor(process.uptime()) });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api', apiRoutes);
 app.use('/api/user-data', userDataRoutes);

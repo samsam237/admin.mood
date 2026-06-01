@@ -1,0 +1,120 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Admin {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("admins")
+}
+
+model AppUser {
+  id        Int      @id @default(autoincrement())
+  userId    String   @unique @map("user_id")
+  email     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  events   Event[]
+  stats    DailyStat[]
+  backups  UserBackupMeta[]
+  consents DataConsent[]
+
+  @@map("app_users")
+}
+
+model Event {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  type      String
+  payload   Json?
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user AppUser @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([timestamp])
+  @@map("events")
+}
+
+model DailyStat {
+  id           Int      @id @default(autoincrement())
+  userId       String   @map("user_id")
+  date         DateTime @db.Date
+  water        Int      @default(0)
+  movements    Int      @default(0)
+  goalsReached Boolean  @default(false) @map("goals_reached")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user AppUser @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+  @@map("daily_stats")
+}
+
+model Alert {
+  id          Int      @id @default(autoincrement())
+  type        String
+  message     String
+  threshold   Float?
+  triggeredAt DateTime @default(now()) @map("triggered_at")
+  isRead      Boolean  @default(false) @map("is_read")
+
+  @@index([isRead])
+  @@index([type, triggeredAt])
+  @@map("alerts")
+}
+
+model DataConsent {
+  id         Int      @id @default(autoincrement())
+  userId     String   @map("user_id")
+  scope      String
+  version    String
+  acceptedAt DateTime @default(now()) @map("accepted_at")
+
+  user AppUser @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@unique([userId, scope])
+  @@map("data_consents")
+}
+
+model UserBackupMeta {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  backupId  String   @unique @map("backup_id")
+  sizeBytes Int      @map("size_bytes")
+  checksum  String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user AppUser @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_backup_meta")
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  actorType String   @map("actor_type")
+  actorId   String   @map("actor_id")
+  action    String
+  resource  String
+  details   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("audit_logs")
+}
