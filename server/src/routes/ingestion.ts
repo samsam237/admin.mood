@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../prisma';
 
@@ -71,7 +72,7 @@ router.post('/events', async (req: Request, res: Response): Promise<void> => {
       data: {
         userId,
         type,
-        payload: payload ?? undefined,
+        payload: payload !== undefined ? (payload as Prisma.InputJsonValue) : undefined,
         timestamp: timestamp ? new Date(timestamp) : new Date(),
       },
     });

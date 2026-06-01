@@ -86,7 +86,7 @@ router.get('/users', async (req: Request, res: Response): Promise<void> => {
 });
 
 router.get('/admin/users/:userId', async (req: Request, res: Response): Promise<void> => {
-  const { userId } = req.params;
+  const userId = req.params['userId'] as string;
   const days = z.coerce.number().default(30).parse(req.query.days);
   const since = subDays(new Date(), days);
 
