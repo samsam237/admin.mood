@@ -3,6 +3,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Search, Download } from 'lucide-react';
 import { getUsers, exportCsv } from '../../lib/api';
+import { truncateId } from '../../lib/utils';
 import type { AppUser } from '../../types';
 import SegmentBadge from '../ui/SegmentBadge';
 import Pagination from '../ui/Pagination';
@@ -87,7 +88,7 @@ export default function UsersTab() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
-            {data?.data.map((user: AppUser) => (
+            {(data?.data ?? []).map((user: AppUser) => (
               <tr
                 key={user.userId}
                 onClick={() => navigate(`/users/${user.userId}`)}
@@ -95,7 +96,7 @@ export default function UsersTab() {
               >
                 <td className="px-4 py-3">
                   <p className="font-medium text-slate-900 dark:text-white">{user.email ?? '—'}</p>
-                  <p className="text-xs text-slate-400 font-mono">{user.userId.slice(0, 16)}…</p>
+                  <p className="text-xs text-slate-400 font-mono">{truncateId(user.userId)}</p>
                 </td>
                 <td className="px-4 py-3">
                   <SegmentBadge segment={user.segment ?? ''} />

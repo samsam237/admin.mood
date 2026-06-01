@@ -33,8 +33,9 @@ export default function KpiCard({
   variant = 'default',
 }: Props) {
   const v = variantMap[variant];
-  const TrendIcon = metric.trend > 0 ? TrendingUp : metric.trend < 0 ? TrendingDown : Minus;
-  const trendColor = metric.trend > 0 ? 'text-emerald-600' : metric.trend < 0 ? 'text-red-500' : 'text-slate-400';
+  const trend = metric.trend ?? 0;
+  const TrendIcon = trend > 0 ? TrendingUp : trend < 0 ? TrendingDown : Minus;
+  const trendColor = trend > 0 ? 'text-emerald-600' : trend < 0 ? 'text-red-500' : 'text-slate-400';
 
   return (
     <div
@@ -52,7 +53,7 @@ export default function KpiCard({
         )}
         <div className={cn('flex items-center gap-1 text-xs font-semibold', trendColor)}>
           <TrendIcon size={12} />
-          <span>{formatTrend(metric.trend)}</span>
+          <span>{formatTrend(trend)}</span>
         </div>
       </div>
 

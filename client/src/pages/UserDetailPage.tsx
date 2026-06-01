@@ -7,7 +7,7 @@ import {
   AreaChart, Area, LineChart, Line,
   XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import { formatDate } from '../lib/utils';
+import { formatDate, truncateId } from '../lib/utils';
 
 function fmtBytes(b: number | null | undefined): string {
   if (!b) return '—';
@@ -53,9 +53,9 @@ export default function UserDetailPage() {
   if (isLoading) return <div className="p-8 text-slate-400">Chargement…</div>;
   if (!data)     return <div className="p-8 text-red-500">Utilisateur introuvable</div>;
 
-  const { user, stats, history, recentEvents, backups } = data as UserDetailResponse;
+  const { user, stats, history = [], recentEvents = [], backups = [] } = data as UserDetailResponse;
 
-  const chartHistory = [...history].sort((a, b) => a.date.localeCompare(b.date));
+  const chartHistory = [...history].sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const last14 = chartHistory.slice(-14);
   const hasDualChart = history?.some((r) => r.movements > 0);
 
@@ -154,7 +154,7 @@ export default function UserDetailPage() {
                   title={`${r.date} : ${r.goalsReached ? 'Atteint' : 'Non atteint'}`}
                 />
                 <span className="text-xs text-slate-400" style={{ fontSize: '9px' }}>
-                  {r.date?.slice(5)}
+                  {r.date ? String(r.date).slice(5) : ''}
                 </span>
               </div>
             ))}
@@ -209,7 +209,7 @@ export default function UserDetailPage() {
             <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
               {backups.map((b) => (
                 <tr key={b.backupId} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                  <td className="px-4 py-2 font-mono text-xs text-slate-400">{b.backupId?.slice(0, 16)}…</td>
+                  <td className="px-4 py-2 font-mono text-xs text-slate-400">{truncateId(b.backupId)}</td>
                   <td className="px-4 py-2 text-slate-500 text-xs">{new Date(b.createdAt).toLocaleDateString('fr-FR')}</td>
                   <td className="px-4 py-2 text-slate-500 text-xs">{fmtBytes(b.sizeBytes)}</td>
                 </tr>

@@ -4,7 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import { Download } from 'lucide-react';
 import { getStats, getAnalytics, exportCsv } from '../../lib/api';
 import { useRange } from '../../hooks/useRange';
-import { formatDate } from '../../lib/utils';
+import { formatDate, truncateId } from '../../lib/utils';
 import Pagination from '../ui/Pagination';
 
 export default function DataTab() {
@@ -79,7 +79,7 @@ export default function DataTab() {
           <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
             {statsList.map((s, i) => (
               <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                <td className="px-4 py-3 text-slate-500 font-mono text-xs">{String(s.userId ?? '').slice(0, 16)}…</td>
+                <td className="px-4 py-3 text-slate-500 font-mono text-xs">{truncateId(s.userId as string | undefined)}</td>
                 <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{String(s.date ?? '')}</td>
                 <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{String(s.water ?? '')}</td>
                 <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{String(s.movements ?? '')}</td>

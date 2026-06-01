@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { getAdminBackups, createBackup } from '../../lib/api';
+import { truncateId } from '../../lib/utils';
 import Pagination from '../ui/Pagination';
 
 function fmtBytes(b: number): string {
@@ -63,14 +64,18 @@ export default function BackupsTab() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
-              {list.map((b) => (
-                <tr key={String(b.backupId)} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                  <td className="px-4 py-3 text-slate-500 font-mono text-xs">{String(b.userId ?? '').slice(0, 16)}…</td>
-                  <td className="px-4 py-3 font-mono text-xs text-slate-400">{String(b.backupId ?? '').slice(0, 16)}…</td>
-                  <td className="px-4 py-3 text-slate-500">{new Date(String(b.createdAt)).toLocaleDateString('fr-FR')}</td>
-                  <td className="px-4 py-3 text-slate-500">{fmtBytes(Number(b.sizeBytes ?? 0))}</td>
+              {list.map((b, idx) => {
+                const row = b as { userId?: string; user_id?: string; backupId?: string; backup_id?: string; createdAt?: string; sizeBytes?: number };
+                const userId = row.userId ?? row.user_id;
+                const backupId = row.backupId ?? row.backup_id;
+                return (
+                <tr key={backupId ?? `backup-${idx}`} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                  <td className="px-4 py-3 text-slate-500 font-mono text-xs">{truncateId(userId)}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-slate-400">{truncateId(backupId)}</td>
+                  <td className="px-4 py-3 text-slate-500">{row.createdAt ? new Date(String(row.createdAt)).toLocaleDateString('fr-FR') : '—'}</td>
+                  <td className="px-4 py-3 text-slate-500">{fmtBytes(Number(row.sizeBytes ?? 0))}</td>
                 </tr>
-              ))}
+              );})}
             </tbody>
           </table>
         )}

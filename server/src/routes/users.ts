@@ -69,11 +69,11 @@ router.get('/users', async (req: Request, res: Response): Promise<void> => {
 
     res.json({
       data: users.map((u) => ({
-        userId: u.user_id,
+        userId: String(u.user_id ?? ''),
         email: u.email,
         createdAt: u.created_at,
         lastActiveAt: u.last_active_at,
-        eventCount: Number(u.event_count),
+        eventCount: Number(u.event_count ?? 0),
       })),
       total: Number(countResult[0]?.count ?? 0),
       page,
@@ -160,7 +160,17 @@ router.get('/admin/backups', async (req: Request, res: Response): Promise<void> 
       prisma.userBackupMeta.findMany({ skip, take: limit, orderBy: { createdAt: 'desc' } }),
       prisma.userBackupMeta.count(),
     ]);
-    res.json({ data, total, page, limit });
+    res.json({
+      data: data.map((b) => ({
+        userId: b.userId,
+        backupId: b.backupId,
+        createdAt: b.createdAt,
+        sizeBytes: b.sizeBytes,
+      })),
+      total,
+      page,
+      limit,
+    });
   } catch (err) {
     console.error('[admin/backups]', err);
     res.status(500).json({ error: 'Failed to fetch backups' });

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { Download } from 'lucide-react';
 import { getEvents, exportCsv } from '../../lib/api';
+import { truncateId } from '../../lib/utils';
 import { useRange } from '../../hooks/useRange';
 import type { Event } from '../../types';
 import Pagination from '../ui/Pagination';
@@ -44,14 +45,14 @@ export default function EventsTab() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
-            {data?.data.map((e: Event) => (
+            {(data?.data ?? []).map((e: Event) => (
               <tr key={e.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
                 <td className="px-4 py-3">
                   <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded text-xs font-mono">
                     {e.type}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-slate-400 font-mono text-xs">{e.userId.slice(0, 16)}…</td>
+                <td className="px-4 py-3 text-slate-400 font-mono text-xs">{truncateId(e.userId)}</td>
                 <td className="px-4 py-3 text-slate-500">
                   {new Date(e.timestamp).toLocaleString('fr-FR')}
                 </td>
